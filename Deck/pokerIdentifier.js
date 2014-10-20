@@ -1,4 +1,4 @@
-var pokerIdentifier = (function() {
+	var pokerIdentifier = (function() {
 	var searchArray = [];
 
 	function p() {
@@ -53,32 +53,38 @@ var pokerIdentifier = (function() {
 		}
 	}
 
-	p.prototype.flush = function() {
+	p.prototype.flush = function(cards, returnCards) {
 		var flushCount = 0;
 		var tempArr = [];
 		var cardInd;
-		for(var i=0; i<this.cards.length;i++) {
-			cardInd = this.isInArray(this.cards[i].suit.name, tempArr);
+		for(var i=0; i<cards.length;i++) {
+			cardInd = this.isInArray(cards[i].suit.name, tempArr);
 			if(cardInd) {
 				tempArr[cardInd].count++;
+				tempArr[cardInd].cards.push(cards[i]);
 			}else{
 				tempArr.push({
 					count:1,
-					number:this.cards[i].suit.name
+					number:cards[i].suit.name,
+					cards:[cards[i]]
 				}); 
 			}
 		}
 		for(var i=0; i<tempArr.length; i++) {
-			if(tempArr[i].count===5) {
+			if(tempArr[i].count>4) {
+				if(returnCards===true) {
+					return tempArr[i].cards;
+				}
 				flushCount++;
 			}
 		}
+
 		return flushCount;
 	};
 
-	p.prototype.straight = function() {
+	p.prototype.straight = function(cards, returnCards) {
 		var tempArr = [];
-		tempArr = tempArr.concat(this.cards);
+		tempArr = tempArr.concat(cards);
 
 		tempArr.sort(function(a, b) {
 			return a.value - b.value
@@ -96,13 +102,31 @@ var pokerIdentifier = (function() {
 			if(tempArr[i].value === (last+1)) {
 				inRowCount++;
 				if(inRowCount===5) {
+					if(returnCards!== undefined && 
+						returnCards===true) {
+						var retCards = tempArr.splice((i-4),5);
+						return retCards;
+					}
 					return true;
 				}
+			}else{
+				inRowCount=0;
 			}
 			last = tempArr[i].value;
 		}
 
 
+		return false;
+	};
+
+	p.prototype.straightFlush = function(cards) {
+		cards = this.flush(cards, true);
+		if(cards !== false) {
+			cards = this.straight(cards, true);
+			if(cards!==false) {
+				return cards;
+			}
+		}
 		return false;
 	};
 

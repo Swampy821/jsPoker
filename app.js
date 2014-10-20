@@ -13,6 +13,7 @@ var flush = 0;
 var handCount = 0;
 var straight = 0;
 var twoPair = 0;
+var stop = false;
 function der() {
 	deck = new Deck(1);
 	poker = new poke();
@@ -23,7 +24,7 @@ function der() {
 	var player1 = Game.addPlayer('player1');
 	Game.players[player1].hand = new Hand();
 
-	Game.players[player1].hand.addCards(deck.draw(5));
+	Game.players[player1].hand.addCards(deck.draw(9));
 	poker.identify(Game.players[player1].hand);
 	//console.log(JSON.stringify(Game.players[player1].hand));
 	if(poker.pair()===1) { pair++;}
@@ -31,10 +32,21 @@ function der() {
 	if(poker.threeOfaKind()>0) { three++;}
 	if(poker.fourOfaKind()>0) { four++;}
 	if(poker.fullHouse()===true) { fhouse++;}
-	if(poker.flush()>0) { flush++;}
-	if(poker.straight()===true) { straight++;}
+	if(poker.flush(poker.cards)>0) { flush++;}
+	/*if(flush>0) {
+		console.log(poker.flush(poker.cards,true));
+		console.log(handCount);
+		stop=true;
+	}*/
+	if(poker.straight(poker.cards)===true) { straight++;}
+	if(poker.straightFlush(poker.cards)!==false) {
+		console.log(poker.straightFlush(poker.cards));
+		console.log(handCount);
+		stop=true;
+	}
+
 	handCount++;
-	console.log('----------');
+	/*console.log('----------');
 	console.log('----------');
 	console.log('---hands--' + handCount);
 	console.log('---pair---' + pair);
@@ -44,11 +56,20 @@ function der() {
 	console.log('---full house---' + fhouse);
 	console.log('---flush---' + flush);
 	console.log('---straight---' + straight);
+	*/
 	setTimeout(function() {
-		der();
+		if(stop===false) { der(); }
 	});
 }
 der();
+
+function report() {
+	console.log(handCount);
+	setTimeout(function() {
+		if(stop===false) {report();}
+	},10000);
+}
+report();
 /*
 deck = new Deck(1);
 	poker = new poke();
@@ -62,8 +83,8 @@ deck = new Deck(1);
 	Game.players[player1].hand.addCards(deck.draw(7));
 	poker.identify(Game.players[player1].hand);
 poker.straight();
-
 */
+
 
 
 
